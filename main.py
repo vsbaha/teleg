@@ -1,35 +1,31 @@
 from aiogram import Bot, Dispatcher, executor, types
-from aiogram.types import ReplyKeyboardMarkup
+from app import keyboard as kb
+from app import database as db
 from dotenv import load_dotenv
 import os
+
+
 
 load_dotenv()
 bot = Bot(os.getenv('TOKEN'))
 dp = Dispatcher(bot=bot)
 
-main = ReplyKeyboardMarkup(resize_keyboard=True)
-main.add('Гдз').add('Нейросети').add('Чат').add('Помощь создателю')
-
-main_admin = ReplyKeyboardMarkup(resize_keyboard=True)
-main_admin.add('Гдз').add('Нейросети').add('Чат').add('Помощь создателю').add('Админ панель')
-
-adminpanel = ReplyKeyboardMarkup(resize_keyboard=True)
-adminpanel.add('Добавить гдз').add('Удалить гдз').add('Сделать рассылку').add('Назад')
+async def on_startup(_):
+    await db.db_start()
+    print("Бот успешно запущен")
 
 
-seven = ReplyKeyboardMarkup(resize_keyboard=True)
-seven.add('Алгебра').add('Геометрия').add('Остальные предметы').add('Назад')
-
-ai = ReplyKeyboardMarkup(resize_keyboard=True)
-ai.add('chatGPT').add('DALL-E').add('ReText').add('Назад')
 
 @dp.message_handler(commands=['start'])
 async def cmd_start(message: types.Message):
-    await message.answer(f'{message.from_user.first_name}, Добро пожаловать! Этот бот создан для помощи учеников и просто для фана ')
-    await message.answer_sticker('CAACAgIAAxkBAAMaZBTgJnIRON_pM7EpHkJpmyubsB8AAgUAAwsieTNT4xP8FX5BVS8E',
-                                 reply_markup=main)
+    await db.cmd_start_db(message.from_user.id)
+    await message.answer_sticker('CAACAgIAAxkBAAMaZBTgJnIRON_pM7EpHkJpmyubsB8AAgUAAwsieTNT4xP8FX5BVS8E')
     if message.from_user.id == int(os.getenv('ADMIN_ID')):
-        await message.answer(f'Вы вошли как администратор!', reply_markup=main_admin)
+        await message.answer(f'Вы вошли как администратор!', reply_markup=kb.main_admin)
+    elif message.from_user.id == int(os.getenv('CLASS_ID')):
+        await message.answer(f'👋 Добро пожаловать!Вы успешно зашли как ученик!', reply_markup=kb.main_class)
+    else:
+        await message.answer(f'{message.from_user.first_name},👋 Добро пожаловать! Чтобы начать пользоваться ботом нажмите на кнопку "Верификация"',reply_markup=kb.unverified_one)
 
 
 @dp.message_handler(commands=['id'])
@@ -41,62 +37,48 @@ async def sticker_id(message: types.Message):
     if message.from_user.id == int(os.getenv('ADMIN_ID')):
         await message.answer(message.sticker.file_id)
 
-@dp.message_handler(text='Гдз')
+@dp.message_handler(text='📄Гдз')
 async def gdz(message: types.Message):
-    await message.answer(f"Пока что доступны ГДЗ 7 класс. Если у вас есть ГДЗ других классов то напишите создателю.", reply_markup=seven)
-
-@dp.message_handler(text='Алгебра')
-async def alg(message: types.Message):
-    await message.answer(f"Вот гдз по алгебре 7 класса: http://surl.li/foimj")
+    await message.answer(f"❗Пока что доступен ГДЗ только 7 класса. Если у вас есть ГДЗ других классов то напишите создателю.", reply_markup=kb.gdzlist)
 
 
-@dp.message_handler(text='Геометрия')
-async def geom(message: types.Message):
-    await message.answer(f"Вот гдз по алгебре 7 класса: http://surl.li/foiou")
 
-@dp.message_handler(text='Остальные предметы')
-async def other(message: types.Message):
-    await message.answer(f'Для других предеметов используйте нейросети', reply_markup=ai)
-
-@dp.message_handler(text='Нейросети')
+@dp.message_handler(text='🤖Нейросети')
 async def bot(message: types.Message):
-    await message.answer(f"Вот список нейроситей которые помогут вам с уроками:", reply_markup=ai)
-
-@dp.message_handler(text='chatGPT')
-async def gpt(message: types.Message):
-    await message.answer(f'Эта нейросеть поможет вам ответить на ваш вопрос и может решить задачи по английскому: https://chat.openai.com/chat')
-
-@dp.message_handler(text='DALL-E')
-async def dalle(message: types.Message):
-    await message.answer(f'Эта нейросеть сгенерирует вам картинку по вашему запросу: https://labs.openai.com/')
-
-@dp.message_handler(text='ReText')
-async def retext(message: types.Message):
-    await message.answer(f'Эта нейросеть перепишет ваш текст так чтобы никто не догодался что вы его где то скопировали: https://retext.ai/ru')
+    await message.answer(f"🤖Вот список нейроситей которые помогут вам с уроками:'chatGPT-Нейросеть для написания эссе либо решение каких то заданий,"
+                         f" DALL-E-Нарисует вам рисунок по вашему запросу."
+                         f" ReText-перепишет ваш текст для антиплагията(Совместно с chatGPT)", reply_markup=kb.ai)
 
 
-@dp.message_handler(text='Помощь создателю')
+@dp.message_handler(text='🖋Обратная связь')
 async def contacts(message: types.Message):
-    await message.answer(f"Вы можете отправить ему сайты с гдз для каких то предметов или просто сообщить об ошибке или идею: @soquoru")
+    await message.answer(f"🖋Вы можете написать создателю бота для того чтоб получить какие то сведения или просто подать идею для продвижения бота", reply_markup=kb.help)
 
-@dp.message_handler(text='Чат')
+
+@dp.message_handler(text='👥Чат')
 async def chat(message: types.Message):
-    await message.answer(f"Чат с учениками 69 гимазии: https://t.me/+MqaYd4TYTfI2ZGM6")
+    await message.answer(f"👥Чат с учениками 69 гимазии: ", reply_markup=kb.ch)
 
-@dp.message_handler(text='Назад')
+
+
+@dp.message_handler(text='↩Назад')
 async def back(message: types.Message):
-    await message.answer(f'Вы вернулись назад', reply_markup=main)
+    await message.answer(f'↩Вы вернулись назад', reply_markup=kb.main_class)
 
 @dp.message_handler(text='Админ панель')
 async def admin_panel(message: types.Message):
     if message.from_user.id == int(os.getenv('ADMIN_ID')):
-        await message.answer(f'log in', reply_markup=adminpanel)
+        await message.answer(f'log in', reply_markup=kb.adminpanel)
     else:
         await message.reply('error')
 
+@dp.message_handler(text='Верификация')
+async def verify(message: types.Message):
+    await message.answer(f'Для верификации напишите в чат /id и отправьте код от бота создателю бота. Для того чтобы написать создателю нажмите на кнопку "Написать создателю"', reply_markup=kb.unverifiedtwo)
 
-
-
+@dp.message_handler(text='Написать создателю')
+async def verify_two(message: types.Message):
+    await message.answer(f'Напишите ему для верификации: @soquoru')
 
 @dp.message_handler()
 async def answer(message: types.Message):
@@ -104,4 +86,4 @@ async def answer(message: types.Message):
 
 
 if __name__ == '__main__':
-        executor.start_polling(dp)
+    executor.start_polling(dp, on_startup=on_startup, skip_updates=True)
