@@ -19,13 +19,13 @@ async def on_startup(_):
 @dp.message_handler(commands=['start'])
 async def cmd_start(message: types.Message):
     await db.cmd_start_db(message.from_user.id)
-    await message.answer_sticker('CAACAgIAAxkBAAMaZBTgJnIRON_pM7EpHkJpmyubsB8AAgUAAwsieTNT4xP8FX5BVS8E')
+    await message.answer_sticker('CAACAgEAAxkBAAMzZC3SnsEo6kiydveWR0vsy31b1GEAAgYAA1qqCUyCbvObrMeIKi8E')
     if message.from_user.id == int(os.getenv('ADMIN_ID')):
         await message.answer(f'Вы вошли как администратор!', reply_markup=kb.main_admin)
     elif message.from_user.id == int(os.getenv('CLASS_ID')):
         await message.answer(f'👋 Добро пожаловать!Вы успешно зашли как ученик!', reply_markup=kb.main_class)
     else:
-        await message.answer(f'{message.from_user.first_name},👋 Добро пожаловать! Чтобы начать пользоваться ботом нажмите на кнопку "Верификация"',reply_markup=kb.unverified_one)
+        await message.answer(f'{message.from_user.first_name},👋 Добро пожаловать! Чтобы начать пользоваться ботом нажмите на кнопку "Верификация"', reply_markup=kb.unverified_one)
 
 
 @dp.message_handler(commands=['id'])
@@ -36,6 +36,8 @@ async def cmd_id(message: types.Message):
 async def sticker_id(message: types.Message):
     if message.from_user.id == int(os.getenv('ADMIN_ID')):
         await message.answer(message.sticker.file_id)
+
+
 
 @dp.message_handler(text='📄Гдз')
 async def gdz(message: types.Message):
