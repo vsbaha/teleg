@@ -1,6 +1,6 @@
 import sqlite3 as sq
 
-db = sq.connect('tg.db')
+db = sq.connect('smartify.db')
 cur = db.cursor()
 
 
@@ -15,7 +15,7 @@ async def db_start():
                 "desc TEXT, "
                 "price TEXT, "
                 "photo TEXT, "
-                "brand TEXT)")
+                "gdz TEXT)")
     db.commit()
 
 

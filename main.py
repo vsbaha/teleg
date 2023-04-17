@@ -2,6 +2,7 @@ from aiogram import Bot, Dispatcher, executor, types
 from app import keyboard as kb
 from app import database as db
 from dotenv import load_dotenv
+import openai
 import os
 
 
@@ -9,6 +10,8 @@ import os
 load_dotenv()
 bot = Bot(os.getenv('TOKEN'))
 dp = Dispatcher(bot=bot)
+
+openai.api_key = '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'
 
 async def on_startup(_):
     await db.db_start()
@@ -22,7 +25,9 @@ async def cmd_start(message: types.Message):
     await message.answer_sticker('CAACAgEAAxkBAAMzZC3SnsEo6kiydveWR0vsy31b1GEAAgYAA1qqCUyCbvObrMeIKi8E')
     if message.from_user.id == int(os.getenv('ADMIN_ID')):
         await message.answer(f'Вы вошли как администратор!', reply_markup=kb.main_admin)
-    elif message.from_user.id == int(os.getenv('CLASS_ID')):
+    elif message.from_user.id == int(os.getenv('CLASS_BAKTIAR_ID')):
+        await message.answer(f'👋 Добро пожаловать!Вы успешно зашли как ученик!', reply_markup=kb.main_class)
+    elif message.from_user.id == int(os.getenv('TEST_MAMA_ID')):
         await message.answer(f'👋 Добро пожаловать!Вы успешно зашли как ученик!', reply_markup=kb.main_class)
     else:
         await message.answer(f'{message.from_user.first_name},👋 Добро пожаловать! Чтобы начать пользоваться ботом нажмите на кнопку "Верификация"', reply_markup=kb.unverified_one)
@@ -50,6 +55,28 @@ async def bot(message: types.Message):
     await message.answer(f"🤖Вот список нейроситей которые помогут вам с уроками:'chatGPT-Нейросеть для написания эссе либо решение каких то заданий,"
                          f" DALL-E-Нарисует вам рисунок по вашему запросу."
                          f" ReText-перепишет ваш текст для антиплагията(Совместно с chatGPT)", reply_markup=kb.ai)
+
+
+@dp.message_handler(text='Запустить ИИ')
+async def startgpt(message: types.Message):
+    await message.answer(f"Для запуска ИИ нажмите кнопку ниже. Для отключения перезапустите бота", reply_markup=kb.startGPT)
+
+
+@dp.callback_query_handler()
+async def callback_query_keyboard(callback_query: types.CallbackQuery):
+    if callback_query.data == 'chatGPT':
+        response = openai.Completion.create(
+            model='text-davinci-003',
+            promt=callback_query.data,
+            temperature=1,
+            max_tokens=2048,
+            top_p=0.7,
+            frecuency_penalty=0
+        )
+        await bot.send_message(response['choices'][0]['text'])
+
+
+
 
 
 @dp.message_handler(text='🖋Обратная связь')
@@ -81,6 +108,8 @@ async def verify(message: types.Message):
 @dp.message_handler(text='Написать создателю')
 async def verify_two(message: types.Message):
     await message.answer(f'Напишите ему для верификации: @soquoru')
+
+
 
 @dp.message_handler()
 async def answer(message: types.Message):

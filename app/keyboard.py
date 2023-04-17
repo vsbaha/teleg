@@ -4,10 +4,10 @@ unverified_one = ReplyKeyboardMarkup(resize_keyboard=True)
 unverified_one.add('Верификация')
 
 main_class = ReplyKeyboardMarkup(resize_keyboard=True)
-main_class.add('📄Гдз').add('🤖Нейросети').add('👥Чат').add('🖋Обратная связь')
+main_class.add('📄Гдз').add('🤖Нейросети').add('👥Чат').add('Запустить ИИ').add('🖋Обратная связь')
 
 main_admin = ReplyKeyboardMarkup(resize_keyboard=True)
-main_admin.add('📄Гдз').add('🤖Нейросети').add('👥Чат').add('🖋Обратная связь').add('Админ панель')
+main_admin.add('📄Гдз').add('🤖Нейросети').add('👥Чат').add('Запустить ИИ').add('🖋Обратная связь').add('Админ панель')
 
 adminpanel = ReplyKeyboardMarkup(resize_keyboard=True)
 adminpanel.add('Добавить гдз').add('Удалить гдз').add('Сделать рассылку').add('↩Назад')
@@ -31,3 +31,6 @@ help.add(InlineKeyboardButton(text='Написать создателю', url='h
 
 ch = InlineKeyboardMarkup(row_width=2)
 ch.add(InlineKeyboardButton(text='Чат', url='https://t.me/+MqaYd4TYTfI2ZGM6'))
+
+startGPT = InlineKeyboardMarkup(row_width=1)
+startGPT.add(InlineKeyboardButton(text='Запустить ИИ', callback_data='chatGPT'))
