@@ -4,14 +4,16 @@ from app import database as db
 from dotenv import load_dotenv
 import openai
 import os
+import logging
 
+logging.basicConfig(level=logging.DEBUG)
 
 
 load_dotenv()
 bot = Bot(os.getenv('TOKEN'))
 dp = Dispatcher(bot=bot)
 
-openai.api_key = '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'
+openai.api_key = os.getenv('CHAT_GPT')
 
 async def on_startup(_):
     await db.db_start()
@@ -71,7 +73,6 @@ async def callback_query_keyboard(callback_query: types.CallbackQuery):
             temperature=1,
             max_tokens=2048,
             top_p=0.7,
-            frecuency_penalty=0
         )
         await bot.send_message(response['choices'][0]['text'])
 
