@@ -24,3 +24,9 @@ async def cmd_start_db(user_id):
     if not user:
         cur.execute("INSERT INTO accounts (tg_id) VALUES ({key}) ".format(key=user_id))
         db.commit()
+
+async def send_anon(user_id):
+    async with state.proxy() as data:
+        cur.execute("INSERT INTO items (text, name) VALUES (?, ?)",
+                    (data['text'], data['name']))
+        db.commit()
