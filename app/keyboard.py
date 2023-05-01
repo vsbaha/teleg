@@ -54,7 +54,12 @@ help.add(InlineKeyboardButton(text='Написать создателю', url='h
 
 ch = InlineKeyboardMarkup(row_width=2)
 ch.add(InlineKeyboardButton(text='Анонимка', url='https://t.me/+MqaYd4TYTfI2ZGM6'),
-       InlineKeyboardButton(text='Отправить сообщение в анонимку', callback_data='SendMsgToAnon'))
+       InlineKeyboardButton(text='Отправить сообщение в анонимку', callback_data='send_message'))
+
+# Создаем клавиатуру с одной кнопкой
+inline_kb_full = InlineKeyboardMarkup(row_width=1)
+inline_btn = InlineKeyboardButton('Нажми меня', callback_data='button_pressed')
+inline_kb_full.add(inline_btn)
 
 cancel = ReplyKeyboardMarkup(resize_keyboard=True)
 cancel.add('↩Назад')

@@ -1,11 +1,10 @@
 from aiogram import Bot, Dispatcher, executor, types
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.dispatcher.filters.state import State, StatesGroup
-from aiogram.dispatcher import FSMContext
 from app import keyboard as kb
 from app import database as db
 from dotenv import load_dotenv
-# import openai
+
 import os
 import logging
 
@@ -14,13 +13,15 @@ logging.basicConfig(level=logging.DEBUG)
 storage = MemoryStorage()
 
 # Это настройка аиграм
-storage = MemoryStorage()
+
 load_dotenv()
 bot = Bot(os.getenv('TOKEN_MAIN'))
+
 dp = Dispatcher(bot, storage=storage)
 
 
 # это люди в вайтлисте
+
 WHITE_LIST = [1189473577, 5038943885, 1992223776]
 
 # это сообщение при страрте бота
@@ -29,10 +30,6 @@ async def on_startup(_):
     print("Бот успешно запущен")
 
 
-class MsgToAnon(StatesGroup):
-    type = State()
-    text = State()
-    name = State()
 
 # это старт бота и проверка айди
 @dp.message_handler(commands=['start'])
@@ -45,6 +42,11 @@ async def cmd_start(message: types.Message):
         await message.answer(f'👋👋 Добро пожаловать!Вы успешно зашли как ученик!', reply_markup=kb.main_class)
     else:
         await message.answer(f'{message.from_user.first_name},👋 Добро пожаловать! Чтобы начать пользоваться ботом нажмите на кнопку "Верификация"', reply_markup=kb.unverified_one)
+
+
+
+
+
 
 # это для получения айди юзера
 @dp.message_handler(commands=['id'])
@@ -120,32 +122,7 @@ async def admin_panel(message: types.Message):
     else:
         await message.reply('error')
 
-@dp.message_handler(text='Отправить сообщение в анонимку')
-async def send_anon(message: types.Message):
-    await MsgToAnon.type.set()
-    await message.answer(f'что вы хотите сделать', reply_markup=kb.ch)
 
-@dp.callback_query_handler(state=MsgToAnon.type)
-async def send_anon_type(call: types.CallbackQuery, state: FSMContext):
-    async with state.proxy() as data:
-        data['type'] = call.data
-    await call.message.answer(f'Напишите ваше анонимное сообщение', reply_markup=kb.cancel)
-    await MsgToAnon.next()
-
-@dp.callback_query_handler(state=MsgToAnon.text)
-async def send_anon_text(call: types.CallbackQuery, state: FSMContext):
-    async with state.proxy() as data:
-        data['text'] = call.data
-    await call.message.answer(f'Напишите ваше имя. если хотите не писать то просто напишите нижнее подчеркивание(_)', reply_markup=kb.cancel)
-    await MsgToAnon.next()
-
-@dp.callback_query_handler(state=MsgToAnon.name)
-async def send_anon_name(call: types.CallbackQuery, state: FSMContext):
-    async with state.proxy() as data:
-        data['name'] = call.data
-    await db.send_anon(state)
-    await call.message.answer(f'Done!', reply_markup=kb.main_class)
-    await state.finish()
 
 # это система верификации(надо изменить)
 @dp.message_handler(text='Верификация')
@@ -157,6 +134,8 @@ async def verify_two(message: types.Message):
     await message.answer(f'Напишите ему для верификации: @soquoru')
 
 
+
+
 # это ответ на неопнятный запрос
 @dp.message_handler()
 async def answer(message: types.Message):
@@ -164,7 +143,7 @@ async def answer(message: types.Message):
 
 # это для корректной работы бота
 if __name__ == '__main__':
-    executor.start_polling(dp, on_startup=on_startup, skip_updates=True)
+    executor.start_polling(dp, skip_updates=True)
 
 
 
